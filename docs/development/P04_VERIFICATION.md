@@ -1,8 +1,8 @@
 # P04 criteria compatibility verification
 
-Recorded: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. The user authorized remaining package completion, reviewed source commit/push and stable NuGet publication. P04 implementation is ready for independent review; the parent will deliver source before final publication. No new user-acceptance gate is introduced. Application adoption remains separate.
+Recorded: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. The user authorized remaining package completion, reviewed source commit/push and stable NuGet publication. Independent Astra source and final-artifact reviews are clear as of 18 October 2026. Reviewed release code was committed/pushed at 813822b72b4a296ab76a3bc299a83eea7dfbabe5 before final packing; the final fresh-cache smoke passed. NuGet publication is awaiting manual final-file selection and registry confirmation; 3.1.0 is not published yet. No new user-acceptance gate is introduced. Application adoption remains separate.
 
-Baseline: 9ab540e692b6c7ebf430be966b5e226c20181328, delivered P03. Current local branch: codex/ef-extensions-p04-stable-3-1. These changes are unstaged/uncommitted.
+Baseline: 9ab540e692b6c7ebf430be966b5e226c20181328, delivered P03. Current local branch: codex/ef-extensions-p04-stable-3-1. The implementation was delivered at 813822b72b4a296ab76a3bc299a83eea7dfbabe5. The baseline identifies the original P04 qualification context; receipts below remain unchanged.
 
 ## Chosen compatibility behavior
 
@@ -33,4 +33,4 @@ Separate unchanged compiled legacy 3.0.0 async and P02 token callers also passed
 
 Raw proof: .local/release31-evidence/results/release31.trx, release31-tests.txt, field-binary.txt, field-caller-original-manifest.json, p02/legacy caller manifests and binary output/TRX. The [upgrade plan](../planning/EF_EXTENSIONS_UPGRADE_PLAN.md) records explicit dispositions for all remaining findings.
 
-P04 is ready for independent review. Commit/push and final NuGet release are authorized in the parent sequence after review; neither was performed by this implementation phase.
+P04 review and release-code delivery are complete. Final artifact qualification also passed; see the release record for final nupkg SHA-256 23C41BD4F228D9DFAED5767E8C5B25194E28A85948B7A0A6917257DF6C49D172 and byte-identical runtime evidence. MIT remains scoped to the EF package only. Publication is authorized but awaiting manual final-file selection/registry confirmation; no additional user-acceptance gate is introduced.

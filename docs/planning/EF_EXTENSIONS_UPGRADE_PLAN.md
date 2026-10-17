@@ -1,10 +1,10 @@
 # EF extensions upgrade plan
 
-Updated: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. P01 is published as 3.0.0; accepted P02 and reviewed P03 were delivered at 07560c2 and 9ab540e. The user authorized completing P04, committing/pushing reviewed package source, then publishing stable 3.1.0. **Current status: P04 and the 3.1.0 candidate are implemented locally, awaiting independent review and final source/artifact delivery.** MIT is approved for the EF package only. Application adoption remains separate; historical receipts are preserved.
+Updated: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. P01 is published as 3.0.0; accepted P02 and reviewed P03 were delivered at 07560c2 and 9ab540e. The user authorized completing P04, committing/pushing reviewed package source, then publishing stable 3.1.0. **Current status: independent Astra source/final-artifact reviews are clear; release code is pushed at 813822b72b4a296ab76a3bc299a83eea7dfbabe5 and final artifact qualification passed. NuGet 3.1.0 publication awaits manual final-file selection and registry confirmation.** MIT is approved for the EF package only. Application adoption remains separate; historical receipts are preserved.
 
 ## Baseline, provenance and goals
 
-Repository: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), verified **private**. Original source import commit: f0e7ed38199a6de8ac3b404bbafe00e7cace9a41 on main. P00 preserved original source plus exclusions for build/user/credential artifacts. Current local branch: codex/ef-extensions-p04-stable-3-1, based on delivered P03 commit 9ab540e692b6c7ebf430be966b5e226c20181328. P04/release changes remain unstaged and uncommitted. Parent workflow will commit/push reviewed source before final packing/publication.
+Repository: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), verified **private**. Original source import commit: f0e7ed38199a6de8ac3b404bbafe00e7cace9a41 on main. P00 preserved original source plus exclusions for build/user/credential artifacts. Current local branch: codex/ef-extensions-p04-stable-3-1, based on delivered P03 commit 9ab540e692b6c7ebf430be966b5e226c20181328. Reviewed P04/release source was committed/pushed as 813822b72b4a296ab76a3bc299a83eea7dfbabe5 before final packing. Candidate/historical records remain preserved; only publication is outstanding.
 
 The imported EF project declares net5.0, EF Core 5.0.1 and package version 2.2.4. That version string does **not** prove equivalence to the NuGet 2.2.4 binary previously consumed by the application. Preserve the source import and distinguish imported-source failures, historical package observations and newly built preview evidence.
 
@@ -37,8 +37,8 @@ Before P01 ordering changes, the unchanged imported ordering source was tested a
 | P01 | EF 10 ordering foundation, focused tests, explicit local package and documentation | P00; user acceptance recorded | Accepted by user after clear Astra high review, 17 October 2026 |
 | P02 | Add cancellation without removing existing async signature | Accepted P01 and explicit next-task approval | Accepted after clear Astra high review; delivered at 07560c2, 18 October 2026 |
 | P03 | Overflow-safe pagination and long counts preserving unbounded semantics | Accepted P02 and explicit approval | Reviewed clear and delivered at 9ab540e under the package-completion instruction, 18 October 2026 |
-| P04 | Preserve legacy state/fields; add fresh criteria factory and acknowledge hiding | User-approved safe compatibility option | Implemented; independent review pending |
-| P05 | Stable package qualification/publication; application adoption separate | User package-completion/publication authorization | 3.0.0 published; 3.1.0 candidate qualified locally, review/source delivery/final publication pending; adoption unstarted |
+| P04 | Preserve legacy state/fields; add fresh criteria factory and acknowledge hiding | User-approved safe compatibility option | Independent review clear; delivered at 813822b, 18 October 2026 |
+| P05 | Stable package qualification/publication; application adoption separate | User package-completion/publication authorization | 3.0.0 published; 3.1.0 reviews/source delivery/final qualification complete; manual final-file selection and registry confirmation pending; adoption unstarted |
 
 Within the current package-completion authorization: Sol implements and qualifies a stable diff, Astra reviews, findings are fixed/reviewed, then the parent commits/pushes reviewed source before packing the final artifact from that clean revision and publishing NuGet. This supersedes the earlier per-task stop gate for remaining package work. It does not authorize application adoption. Historical previews were not published.
 
@@ -100,7 +100,7 @@ Keep ListCriteriaDto.Default and StaticValueDto.PageSize as public mutable stati
 
 Add new to the existing derived instance AddNewInclude declaration, acknowledging current hiding without changing its signature/behavior. No Obsolete warning, field-to-property change, enum policy or other project change is introduced.
 
-Acceptance: setter reference identity/null/nonpositive behavior and JSON shape; factory independence from each other/shared Default; field type/read/write/binary compatibility with finally restoration; derived/base include behavior. [P04 verification](../development/P04_VERIFICATION.md) records nine new tests plus all 68 prior cases, zero-warning build and unchanged compiled consumers. Independent review remains pending.
+Acceptance: setter reference identity/null/nonpositive behavior and JSON shape; factory independence from each other/shared Default; field type/read/write/binary compatibility with finally restoration; derived/base include behavior. [P04 verification](../development/P04_VERIFICATION.md) records nine new tests plus all 68 prior cases, zero-warning build and unchanged compiled consumers. Independent Astra source and final-artifact reviews are clear; P04 source is delivered at 813822b.
 
 ### P05 — Historical 3.0.0 qualification and current 3.1.0 follow-up
 
@@ -125,7 +125,7 @@ NuGet 3.0.0 publication is complete and verified. Reviewed 3.0.0 source delivery
 | EF ToDto projection uncertainty | Actual packed-provider bounded/empty/unbounded paths passed; no speculative projection framework/fix added |
 | Package metadata/licensing | Stable 3.1.0, approved EF-only MIT expression and full LICENSE; no other-project/source-publication grant |
 
-The 3.1.0 candidate includes P02–P04, the prior ordering correction and MIT, with no new production dependency. [Release verification](../development/RELEASE_3_1_0_VERIFICATION.md) records actual provider/caller/package checks. Candidate output is artifacts/release31; final output will be separate artifacts/release31-final after review and source commit/push. Final packing must pass the actual clean source SHA via RepositoryCommit, verify the same DLL, inspect new nuspec/license and restore from a fresh cache/lock. No source/symbol package or SourceLink is added. Publication is authorized but remains pending actual registry verification. Application adoption/FEAT-04.T02 remains unstarted.
+The 3.1.0 candidate includes P02–P04, the prior ordering correction and MIT, with no new production dependency. [Release verification](../development/RELEASE_3_1_0_VERIFICATION.md) records actual provider/caller/package checks. Candidate output remains artifacts/release31; final output is preserved separately in artifacts/release31-final. Final packing used RepositoryCommit=813822b72b4a296ab76a3bc299a83eea7dfbabe5 after source delivery. Final nupkg SHA-256 is 23C41BD4F228D9DFAED5767E8C5B25194E28A85948B7A0A6917257DF6C49D172; DLL byte identity, MIT/README/metadata and fresh-cache/lock runtime smoke passed. No source/symbol package or SourceLink is added. Publication is authorized but has not occurred; manual selection of the exact final package and actual registry confirmation are pending. No new approval gate is introduced. Application adoption/FEAT-04.T02 remains unstarted.
 
 ## Scoped command entry points
 

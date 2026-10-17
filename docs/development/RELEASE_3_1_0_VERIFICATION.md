@@ -1,16 +1,16 @@
 # Stable 3.1.0 release qualification
 
-Recorded: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. **Candidate qualification is complete; independent review, source commit/push, final artifact qualification and NuGet publication remain pending.** The user explicitly authorized package completion and publication, with reviewed source delivered before the final NuGet package. Application/FEAT-04 adoption is outside this work.
+Recorded: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. **Independent Astra source and final-artifact reviews are clear; source commit/push and final qualification are complete. NuGet 3.1.0 is not published yet: manual final-file selection and registry confirmation remain pending.** The user explicitly authorized package completion and publication, with reviewed source delivered before the final NuGet package. Application/FEAT-04 adoption is outside this work.
 
 ## Source and release scope
 
-Current branch: codex/ef-extensions-p04-stable-3-1, based on delivered P03 9ab540e692b6c7ebf430be966b5e226c20181328. P04/release source is currently unstaged/uncommitted. Historical P01/P02/P03 evidence, preview packages and published 3.0.0 archives remain unchanged.
+Current branch: codex/ef-extensions-p04-stable-3-1, based on delivered P03 9ab540e692b6c7ebf430be966b5e226c20181328. Reviewed P04/release source was committed/pushed as 813822b72b4a296ab76a3bc299a83eea7dfbabe5 before final packing. The baseline identifies the historical candidate preparation context; candidate receipts below remain unchanged. Historical P01/P02/P03 evidence, preview packages and published 3.0.0 archives remain unchanged.
 
 Version 3.1.0 includes the accepted cancellation overload, safe long-count pagination/offset validation, fresh criteria factory with legacy state/fields preserved, explicit existing include-method hiding, and user-approved MIT for this EF package only. No production provider, application result, repository framework, SourceLink or source/symbol package was added. Public 3.0/P02 entry points remain.
 
 SDK: exact portable 10.0.401 at D:/Interactive/Multi-tenant/AgileStart/ISA.MultiTenant.Platform/.tools/dotnet-sdk-10.0.401/dotnet.exe, with process-local DOTNET_ROOT/PATH for VSTest children; no global setting changed. Target net10.0; production EF [10.0.12,11.0.0), resolved Core/Abstractions 10.0.12. Test-only Npgsql EF/driver 10.0.3. Qualification does not promise all allowed patches/providers.
 
-## Executed qualification
+## Historical candidate qualification
 
 | Check | Result |
 | --- | --- |
@@ -43,7 +43,7 @@ The nupkg contains one net10.0 DLL, README.md, LICENSE and standard NuGet metada
 
 MIT was explicitly approved for Akeel.Utilities.EF.Extensions only. Full [LICENSE](../../Akeel.Utilities.EF.Extensions/LICENSE), copyright (c) 2026 Mahmoud Akeel, follows the [official MIT text](https://opensource.org/license/mit). Its SHA-256 is 673B47872E0341869E5E4332622E62E9762033E9B1A13C24D1EDCCD810F82081. NuGet metadata uses the documented [PackageLicenseExpression](https://learn.microsoft.com/en-us/nuget/reference/msbuild-targets#packagelicenseexpression) plus explicitly packed LICENSE. No root license/other-project grant is added; prior package metadata was not retroactively changed.
 
-This candidate was built from uncommitted reviewed-source preparation; 9ab540e identifies its baseline, not a commit reproducing this candidate. Keep the candidate unchanged as evidence. After review, the parent will commit/push source, pack separately from the clean reviewed revision with explicit RepositoryCommit equal to its actual SHA, and verify identity before publishing.
+This candidate was built from uncommitted reviewed-source preparation; 9ab540e identifies its baseline, not a commit reproducing this candidate. Keep the candidate unchanged as evidence. That source-first sequence has now completed through final artifact qualification, as recorded below; publication has not occurred.
 
 Preserved historical package hashes: 3.0.0 = 13627A74F1901E567665283C93D8C2D3960B2A8E73503BFC8A1534425D7BEF2B; P02 preview = E52781008B16731F7A6BD0EA09BC762C30F994957F010C2A06CE1145ADE4CC09; P03 preview = BAD50C05059628EFBAA8E6B88C147B16C1F1BE19D51F4238C208148B8F2CACA5.
 
@@ -74,8 +74,17 @@ Before Compose cleanup, exact project/scope/repository labels were verified on t
 
 Receipts under .local/release31-evidence include full suite and caller/consumer TRX/output, all original caller manifests, package-inspection.json, artifact-hashes.json, production-packages.txt, docker-before/after.json and review-file-snapshot.json. Final diff/link/XML/JSON/scope checks passed. No functional code changed after these passing checks.
 
-## Final publication handoff — not yet executed
+## Final source/artifact delivery and publication status
 
-After clear review, commit/push the reviewed source first. Pack --no-build/--no-restore to artifacts/release31-final with the actual clean commit supplied as RepositoryCommit; do not re-enable global SCM queries or hardcode an earlier SHA. Preserve candidate output separately. Inspect final metadata/MIT/assets and compare final DLL to C354B8FBD4E775E77E37547B6C53B6BDDD9A86B743CEFF745E53A6FC09B9A6EB.
+Independent Astra source review and final-artifact review are clear, 18 October 2026. Release code was committed/pushed on codex/ef-extensions-p04-stable-3-1 as 813822b72b4a296ab76a3bc299a83eea7dfbabe5, with the remote matching and clean source verified before final packing.
 
-Use a new final consumer cache and new lock: the same 3.1.0 version will have a different nupkg hash when repository metadata changes. Verify exact final package/DLL identity and runtime factory/retained APIs. Candidate real-provider evidence transfers only if the final DLL is identical; changed runtime code requires affected checks again. Record the actual source SHA, final nupkg hash and registry receipt when performed. Publication is authorized but not claimed complete by this candidate record.
+Final package: artifacts/release31-final/Akeel.Utilities.EF.Extensions.3.1.0.nupkg
+SHA-256: 23C41BD4F228D9DFAED5767E8C5B25194E28A85948B7A0A6917257DF6C49D172
+
+The parent packed --no-build/--no-restore with RepositoryCommit=813822b72b4a296ab76a3bc299a83eea7dfbabe5. Final nuspec contains that exact SHA, stable 3.1.0, MIT expression, the actual private URL and only EF [10.0.12,11.0.0). LICENSE/README match source byte-for-byte and package assets match the preserved candidate. Final DLL is byte-identical to the reviewed candidate, SHA-256 C354B8FBD4E775E77E37547B6C53B6BDDD9A86B743CEFF745E53A6FC09B9A6EB. Both candidate/final archives remain preserved.
+
+A new ignored .local/release31-final-consumer used exact [3.1.0] mapped to the final local feed, with a new cache and lock. Audited and locked restores passed; Release build had zero warnings/errors. Runtime smoke passed version, fresh factory, mutable legacy fields/accessors, serialization, ordering, pagination and oversized-offset rejection. Both async signatures bind. Restored nupkg and runtime DLL hashes match the exact final artifact. Real-provider 77-case/caller/candidate evidence transfers through verified DLL byte identity; PostgreSQL was not recreated for this final metadata-only package check.
+
+Final receipts: .local/release31-evidence/final-package-inspection.json, final-nuspec.xml, final-consumer-smoke.txt and final-consumer-hashes.json. The final consumer source/config/cache/lock remain ignored; historical candidate and earlier records are preserved.
+
+Publication is authorized but NOT performed/confirmed. It is awaiting manual selection of the exact final artifact above in the signed-in NuGet upload flow, then registry confirmation. There is no additional user-acceptance gate. Do not substitute the candidate archive or claim 3.1.0 is published before confirmation. MIT remains EF-package-only, and application adoption remains separate.
