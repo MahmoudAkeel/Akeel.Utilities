@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<Copyright>Mahmoud Akeel</Copyright>
+		<Description>Design query data criteria (Filter, Include relared objects, Ordering, Paging) for APIs that supports Akeel.Utilities.EF.Extensions</Description>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<FileVersion>1.0.1</FileVersion>
+		<Version>1.0.1</Version>
+	    <Version>1.0.2</Version>
+</PropertyGroup>
+
+</Project>

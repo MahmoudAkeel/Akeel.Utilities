@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>A fluent query string builder for complex objects (Nested Objects)</Description>
+    <PackageProjectUrl>https://github.com/MahmoudAkeel/QueryStringBuilder.Net</PackageProjectUrl>
+    <Company>MahmoudAkeel</Company>
+    <Copyright>MahmoudAkeel</Copyright>
+    <RepositoryType>https://github.com/MahmoudAkeel/QueryStringBuilder.Net</RepositoryType>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,27 @@
+# Build output and package artifacts
+**/bin/
+**/obj/
+*.nupkg
+*.snupkg
+artifacts/
+TestResults/
+
+# Local IDE and user settings
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local credentials, certificates and tooling
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.pem
+*.key
+*.snk
+.tools/
+.local/
