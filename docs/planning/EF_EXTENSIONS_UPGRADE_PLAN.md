@@ -1,10 +1,10 @@
 # EF extensions upgrade plan
 
-Recorded: 17 October 2026. Workflow: wf-astra-high-sol6.1-high. The user accepted P01 after clear Astra high review and explicitly authorized stable NuGet publication. **The current P05 boundary is release qualification/publication of accepted P01 as 3.0.0.** P02–P04 and application adoption remain unstarted. The user has authorized committing and pushing the reviewed 3.0.0 source; this does not authorize committing or pushing later tasks. Astra high cleared the stable artifact with no actionable findings; 3.0.0 has been published and verified through a fresh NuGet.org-only restore and runtime check.
+Updated: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. P01 was accepted and published as 3.0.0 after clear Astra high review; source delivery is complete at 804b5e1eb8cd3afabe4e34e2a9b91a5a2f5eda80. **P02 cancellation implementation and independent review are complete and accepted by the user**, on local branch codex/ef-extensions-p02-cancellation. The user authorized P02 source commit/push and P03 implementation; P03 commit/push, any new NuGet publication, P04 and application adoption remain gated. Historical 17 October release evidence remains unchanged.
 
 ## Baseline, provenance and goals
 
-Repository: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), verified **private**. Original source import commit: f0e7ed38199a6de8ac3b404bbafe00e7cace9a41 on main. P00 preserved original source plus exclusions for build/user/credential artifacts. Current local branch: codex/ef10-ordering-foundation. The source backup was pushed before enhancement work. The user has now authorized the reviewed 3.0.0 source delivery on codex/ef10-ordering-foundation.
+Repository: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), verified **private**. Original source import commit: f0e7ed38199a6de8ac3b404bbafe00e7cace9a41 on main. P00 preserved original source plus exclusions for build/user/credential artifacts. Current local branch: codex/ef-extensions-p02-cancellation, based on 804b5e1eb8cd3afabe4e34e2a9b91a5a2f5eda80. The source backup and reviewed 3.0.0 source were pushed before P02; P02 source delivery is authorized on codex/ef-extensions-p02-cancellation; the source history records the delivery commit.
 
 The imported EF project declares net5.0, EF Core 5.0.1 and package version 2.2.4. That version string does **not** prove equivalence to the NuGet 2.2.4 binary previously consumed by the application. Preserve the source import and distinguish imported-source failures, historical package observations and newly built preview evidence.
 
@@ -35,12 +35,12 @@ Before P01 ordering changes, the unchanged imported ordering source was tested a
 | --- | --- | --- | --- |
 | P00 | Preserve/import original source into private GitHub | User publication authorization | Done; original import only |
 | P01 | EF 10 ordering foundation, focused tests, explicit local package and documentation | P00; user acceptance recorded | Accepted by user after clear Astra high review, 17 October 2026 |
-| P02 | Add cancellation without removing existing async signature | Accepted P01 and explicit next-task approval | Not started |
+| P02 | Add cancellation without removing existing async signature | Accepted P01 and explicit next-task approval | Accepted by the user after clear Astra high review; source commit/push authorized, 18 October 2026 |
 | P03 | Overflow-safe pagination and long counts preserving unbounded semantics | Accepted P02 and explicit approval | Not started |
 | P04 | Decide default setter/static-field compatibility, then implement only chosen behavior | Accepted prior tasks and explicit decision/approval | Not started |
 | P05 | Stable 3.0.0 qualification/publication of accepted P01; application adoption separate | Accepted P01 and explicit NuGet publication authorization | Published accepted P01 as 3.0.0; stable review clear and fresh public restore/runtime verified; adoption unstarted |
 
-For each task: record the approved boundary → Sol implementation and focused checks → Astra review of a stable diff/evidence → fixes/re-review → present the concrete result → stop for the user's next decision. Approval of implementation does not authorize source commit/push or application adoption. NuGet publication now has explicit user authorization, subject to stable artifact qualification/review; the historical P01 preview was not published.
+For each task: record the approved boundary → Sol implementation and focused checks → Astra review of a stable diff/evidence → fixes/re-review → present the concrete result → stop for the user's next decision. Approval of implementation does not authorize source commit/push or application adoption. The explicit NuGet authorization applied to stable 3.0.0, now published; neither the historical P01 preview nor the current P02 preview is authorized for publication.
 
 ### P01 — Modern EF ordering foundation
 
@@ -56,7 +56,7 @@ Acceptance:
 - [x] Restore a standalone consumer from the new local package with restricted source mapping and a fresh package cache; prove it uses the package instead of a ProjectReference.
 - [x] Verify owned-resource cleanup, safe diagnostics and stable uncommitted diff.
 - [x] Astra high independently reviewed P01 on 17 October 2026: "No actionable findings remain for P01."
-- [x] User accepted P01 and authorized the P05 stable-release qualification/publication follow-up. P02–P04 and application adoption remain unstarted.
+- [x] User accepted P01 and authorized the P05 stable-release qualification/publication follow-up. At that acceptance, P02–P04 and application adoption remained unstarted; P02 is now separately authorized as recorded above.
 
 Excluded: cancellation, offset/count algorithm changes, default/static-field changes, other utility projects, application edits/adoption and publication.
 
@@ -68,7 +68,13 @@ Retain the existing async method's three-argument public signature. Add a Cancel
 
 Acceptance: old/new call sites compile; pre-cancelled calls and cancellation during real active count/materialization stop predictably; existing empty/nonempty/bounded/unbounded DTO results remain compatible. Exercise existing ToDto projection on EF 10, record actual behavior and propose only a necessary, separately reviewed fix if it fails. Keep existing error behavior and do not conceal provider failures.
 
-Evidence: focused async PostgreSQL tests, token forwarding/count/list sequencing observations and a local package consumer invocation. LongCount/offset changes belong to P03 rather than being silently bundled here.
+Evidence: [P02 verification](../development/P02_VERIFICATION.md) records 45 passing project tests, exact backend/blocker observations for active cancellation, the unchanged compiled 3.0.0 caller running with the new DLL, and an isolated actual-package consumer. LongCount/offset changes remain P03.
+
+- [x] Retain the original signature and add a required final token overload forwarding to both sequential EF operations.
+- [x] Verify legacy/None/live-token results, pre-cancellation and real active count/materialization cancellation with cleanup and context recovery.
+- [x] Preserve compiled old caller and stable artifacts; qualify the isolated local 3.1.0-preview.1 package.
+- [x] Astra high independently reviewed P02 on 18 October 2026: "No actionable findings remain for P02."
+- [x] User accepted P02 and authorized its source commit/push and P03 implementation. No additional NuGet publication or P03 commit/push is authorized.
 
 ### P03 — Prevent offset/count overflow
 
@@ -96,7 +102,7 @@ Keep production behavior unchanged and prepare 3.0.0 metadata, install/release n
 
 A later application task must explicitly choose the package version/feed, update its lock graph and re-run affected real-provider contracts before removing its local ordering adapter. The current application's historical bug-expectation regression must then be deliberately revised. Do not edit it as part of P01. Authentication/tenancy and FEAT-04.T02 remain outside this package work.
 
-NuGet 3.0.0 publication is complete and verified. Source commit/push for the reviewed 3.0.0 changes is now authorized; later task commits/pushes and application adoption still require separate authorization. Never overwrite historical 2.2.4 or claim a package was published before actual registry confirmation. See [stable release verification](../development/RELEASE_3_0_0_VERIFICATION.md) for actual results and artifact/source manifests.
+NuGet 3.0.0 publication is complete and verified. Reviewed 3.0.0 source delivery is complete at commit 804b5e1eb8cd3afabe4e34e2a9b91a5a2f5eda80 on the pushed codex/ef10-ordering-foundation branch; later task commits/pushes and application adoption still require separate authorization. Never overwrite historical 2.2.4 or claim a package was published before actual registry confirmation. See [stable release verification](../development/RELEASE_3_0_0_VERIFICATION.md) for actual results and artifact/source manifests.
 
 ## Scoped command entry points
 
@@ -105,8 +111,10 @@ With .NET SDK 10.0.401 selected, run only the EF/test projects; the legacy solut
 ~~~text
 dotnet restore tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --locked-mode
 dotnet build tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --configuration Release --no-restore
-dotnet test tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --configuration Release --no-build --no-restore --filter "FullyQualifiedName!~OrderingPostgreSqlTests"
-dotnet pack Akeel.Utilities.EF.Extensions/Akeel.Utilities.EF.Extensions.csproj --configuration Release --no-build --no-restore --output artifacts/packages
+dotnet test tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --configuration Release --no-build --no-restore --filter "FullyQualifiedName~OrderingLinqTests|FullyQualifiedName~PublicApiCompatibilityTests"
+dotnet pack Akeel.Utilities.EF.Extensions/Akeel.Utilities.EF.Extensions.csproj --configuration Release --no-build --no-restore --output artifacts/p02
 ~~~
 
 Full provider-test Compose/credential instructions and actual local-package probe results belong to [P01 verification](../development/P01_VERIFICATION.md). No operational PowerShell script or app-private state dependency is introduced.
+
+P02 full-provider and package/binary checks are recorded in [P02 verification](../development/P02_VERIFICATION.md). Its preview output is separate from the preserved stable 3.0.0 artifacts.

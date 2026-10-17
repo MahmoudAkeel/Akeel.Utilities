@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Akeel.Utilities.EF.Extensions.ExtensionMethods;
 using Akeel.Utilities.EF.Extensions.Interfaces;
@@ -33,6 +34,9 @@ namespace Akeel.Utilities.EF.Extensions.Tests
             Func<Task<RowsWithPaginationInfo<int>>> oldAsyncCall = () =>
                 source.OnSelectListWithPaginationAsync(criteria.PaginationInfo, criteria.ListRelatedObjectsEnum, helper);
             Assert.NotNull(oldAsyncCall);
+            Func<Task<RowsWithPaginationInfo<int>>> cancellableAsyncCall = () =>
+                source.OnSelectListWithPaginationAsync(criteria.PaginationInfo, criteria.ListRelatedObjectsEnum, helper, CancellationToken.None);
+            Assert.NotNull(cancellableAsyncCall);
             Assert.True(typeof(ListCriteriaDto<int, RowOrder, Related>).GetField("Default")!.IsStatic);
             Assert.True(typeof(GetCriteriaDto<Related>).GetProperty("Default")!.GetMethod!.IsStatic);
             Assert.True(typeof(StaticValueDto).GetField("PageSize")!.IsStatic);

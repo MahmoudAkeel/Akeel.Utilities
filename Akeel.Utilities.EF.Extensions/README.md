@@ -58,3 +58,14 @@ public static class ItemQueries
 The package depends only on EF Core. Database providers remain application choices; no repository, UnitOfWork or application result dependency is introduced. DoSearchCriteria, IncludeRange, Pagination and the existing OnSelectListWithPaginationAsync source signatures remain available. Null/nonpositive pagination retains the legacy unbounded meaning; current default fields/setter behavior is unchanged.
 
 Source: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), a private repository requiring access. Source provenance, tested scope and release qualification are documented there. No historical 2.2.4 binary equivalence is claimed.
+
+## Local P02 preview — 3.1.0-preview.1
+
+This working-tree preview is not published. Published 3.0.0 remains the stable install above. The preview adds a required final CancellationToken argument to OnSelectListWithPaginationAsync; existing three-argument calls remain available and forward CancellationToken.None.
+
+~~~csharp
+var page = await rows.OnSelectListWithPaginationAsync(
+    pagination, relatedObjects, helper, cancellationToken);
+~~~
+
+Count and materialization remain sequential on the same query/context. The token is passed to both EF operations. Framework/dependency requirements remain .NET 10 and EF Core [10.0.12,11.0.0); qualification uses 10.0.12. Offset overflow, long-count and default/static-field changes are outside P02.

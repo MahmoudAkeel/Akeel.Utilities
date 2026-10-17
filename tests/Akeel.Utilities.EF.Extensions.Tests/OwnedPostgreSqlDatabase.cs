@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 
 namespace Akeel.Utilities.EF.Extensions.Tests
@@ -74,8 +75,8 @@ namespace Akeel.Utilities.EF.Extensions.Tests
             }
         }
 
-        public OrderingDbContext Context() => new(new DbContextOptionsBuilder<OrderingDbContext>()
-            .UseNpgsql(_connection).EnableSensitiveDataLogging(false).EnableDetailedErrors(false).Options);
+        public OrderingDbContext Context(params IInterceptor[] interceptors) => new(new DbContextOptionsBuilder<OrderingDbContext>()
+            .UseNpgsql(_connection).AddInterceptors(interceptors).EnableSensitiveDataLogging(false).EnableDetailedErrors(false).Options);
 
         public async ValueTask DisposeAsync()
         {

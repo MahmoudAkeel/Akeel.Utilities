@@ -1,9 +1,10 @@
-﻿using Akeel.Utilities.EF.Extensions.Interfaces;
+using Akeel.Utilities.EF.Extensions.Interfaces;
 using Akeel.Utilities.EF.Extensions.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Akeel.Utilities.EF.Extensions.ExtensionMethods
@@ -39,12 +40,20 @@ namespace Akeel.Utilities.EF.Extensions.ExtensionMethods
         }
 
         // V4
-        public static async Task<RowsWithPaginationInfo<TDto>> OnSelectListWithPaginationAsync<TDto, TEntity, TIncludeRelatedObjectsEnum>(this IQueryable<TEntity> rows,
+        public static Task<RowsWithPaginationInfo<TDto>> OnSelectListWithPaginationAsync<TDto, TEntity, TIncludeRelatedObjectsEnum>(this IQueryable<TEntity> rows,
             RequestPaginationInfo paginationInfo,
             List<TIncludeRelatedObjectsEnum> listRelatedObjectsEnums,
             ISelectListWithPagination<TEntity, TDto, TIncludeRelatedObjectsEnum> selectListWithPagination)
+            => rows.OnSelectListWithPaginationAsync(paginationInfo, listRelatedObjectsEnums,
+                selectListWithPagination, CancellationToken.None);
+
+        public static async Task<RowsWithPaginationInfo<TDto>> OnSelectListWithPaginationAsync<TDto, TEntity, TIncludeRelatedObjectsEnum>(this IQueryable<TEntity> rows,
+            RequestPaginationInfo paginationInfo,
+            List<TIncludeRelatedObjectsEnum> listRelatedObjectsEnums,
+            ISelectListWithPagination<TEntity, TDto, TIncludeRelatedObjectsEnum> selectListWithPagination,
+            CancellationToken cancellationToken)
         {
-            var rowsCount = await rows.CountAsync();
+            var rowsCount = await rows.CountAsync(cancellationToken);
             if (rowsCount == 0)
             {
                 return new RowsWithPaginationInfo<TDto>()
@@ -66,7 +75,7 @@ namespace Akeel.Utilities.EF.Extensions.ExtensionMethods
             var result = await rows
                 .Pagination(paginationInfo)
                 .Select(selector: x => selectListWithPagination.ToDto(x, currentListRelatedObjects))
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
             return new RowsWithPaginationInfo<TDto>()
             {
                 Rows = result,
