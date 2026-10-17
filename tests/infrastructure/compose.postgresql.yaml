@@ -1,0 +1,37 @@
+name: akeel-utilities-${AKEEL_POSTGRES_TEST_SCOPE:?Select a unique disposable test scope}
+services:
+  postgres:
+    image: postgres:18.6-bookworm@sha256:afc7e2d441324c0388fa80c3d24f733b4194a4eb7f47dd8ee2b08eb1a24a647c
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    secrets:
+      - postgres-password
+    ports:
+      - "127.0.0.1:${AKEEL_POSTGRES_TEST_PORT:?Select an unused loopback port}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=$$(cat /run/secrets/postgres-password) psql -h 127.0.0.1 -U postgres -d postgres -Atqc 'SELECT 1' | grep -qx 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    labels:
+      akeel.utilities.scope: ${AKEEL_POSTGRES_TEST_SCOPE}
+      akeel.utilities.repository: MahmoudAkeel/Akeel.Utilities
+secrets:
+  postgres-password:
+    file: ../../.local/postgresql/${AKEEL_POSTGRES_TEST_SCOPE}/password
+volumes:
+  postgres-data:
+    labels:
+      akeel.utilities.scope: ${AKEEL_POSTGRES_TEST_SCOPE}
+      akeel.utilities.repository: MahmoudAkeel/Akeel.Utilities
+networks:
+  default:
+    labels:
+      akeel.utilities.scope: ${AKEEL_POSTGRES_TEST_SCOPE}
+      akeel.utilities.repository: MahmoudAkeel/Akeel.Utilities
