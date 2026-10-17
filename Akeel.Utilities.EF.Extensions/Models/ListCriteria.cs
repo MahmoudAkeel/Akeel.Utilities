@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -9,30 +9,12 @@ namespace Akeel.Utilities.EF.Extensions.Models
     {
         public new static ListCriteriaDto<TFilter, TOrderEnum, TIncludeRelatedObjectsEnum> Default = new();
 
-        private RequestPaginationInfo _paginationInfo;
-        private int pageSize = 25;
+        public static ListCriteriaDto<TFilter, TOrderEnum, TIncludeRelatedObjectsEnum> CreateDefault() => new();
         public TFilter Entity { get; set; }
         [JsonIgnore]
         public List<TOrderEnum> ListOrderOptionsEnum => GetEquivalentEnum(ListOrderOptions);
         public List<string> ListOrderOptions { set; get; }
-        public RequestPaginationInfo PaginationInfo
-        {
-            get => _paginationInfo;
-            set
-            {
-                if (value == null || value?.PageIndex == 0 && value?.PageSize == 0)
-                {
-                    _paginationInfo = new RequestPaginationInfo()
-                    {
-                        PageSize = pageSize,
-                        PageIndex = 1
-                    };
-                }
-
-
-                _paginationInfo = value;
-            }
-        }
+        public RequestPaginationInfo PaginationInfo { get; set; }
 
         public static ListCriteriaDto<TFilter, TOrderEnum, TIncludeRelatedObjectsEnum> AddNewInclude(ListCriteriaDto<TFilter, TOrderEnum, TIncludeRelatedObjectsEnum> criteria, TIncludeRelatedObjectsEnum includeObject)
         {
@@ -65,7 +47,7 @@ namespace Akeel.Utilities.EF.Extensions.Models
             return criteria;
         }
 
-        public ListCriteriaDto<TFilter, TOrderEnum, TIncludeRelatedObjectsEnum> AddNewInclude(TIncludeRelatedObjectsEnum includeObject)
+        public new ListCriteriaDto<TFilter, TOrderEnum, TIncludeRelatedObjectsEnum> AddNewInclude(TIncludeRelatedObjectsEnum includeObject)
         {
 
 

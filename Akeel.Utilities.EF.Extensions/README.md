@@ -1,19 +1,39 @@
 # Akeel.Utilities.EF.Extensions
 
-Provider-neutral query criteria, include, ordering and pagination helpers for Entity Framework Core.
+Provider-neutral query criteria, includes, ordering and pagination helpers for Entity Framework Core.
 
-**Version 3.0.0 requires .NET 10.** The EF Core dependency range is [10.0.12,11.0.0). Qualification uses EF Core 10.0.12 and PostgreSQL with Npgsql EF/driver 10.0.3; this does not claim every future EF patch or database provider was tested. Applications targeting older frameworks must migrate explicitly before upgrading.
+**Version 3.1.0 requires .NET 10.** Production depends only on EF Core [10.0.12,11.0.0). Qualification uses EF Core 10.0.12 and PostgreSQL with Npgsql EF/driver 10.0.3; it does not claim every allowed patch/provider was tested. Applications on older frameworks must migrate explicitly.
 
 ~~~text
-dotnet add package Akeel.Utilities.EF.Extensions --version 3.0.0
+dotnet add package Akeel.Utilities.EF.Extensions --version 3.1.0
 ~~~
 
-## Release notes — 3.0.0
+## Release notes — 3.1.0
 
-- Correct multi-column ordering in the package: secondary ascending/descending clauses preserve earlier order precedence.
-- Preserve public package ID, namespaces, source-call signatures and the existing object-selector column API. The .NET 10 framework change is a major upgrade, not compatibility with older framework binaries.
-- Preserve null/empty order passthrough and ignore helper mappings that return null. Callers choose their own unique pagination tie-break columns; no ID order is injected.
-- Keep legacy pagination/default behavior. Cancellation overloads and overflow-safe pagination are separate future tasks and are not included in 3.0.0.
+- Add a required final CancellationToken overload to OnSelectListWithPaginationAsync. Existing calls remain available and forward CancellationToken.None. Count/materialization run sequentially on the same query/context.
+- Count original filtered rows with LongCountAsync and compute long page totals with safe integer division/remainder.
+- Validate positive page offsets before SQL: offsets through Int32.MaxValue are supported; larger offsets throw ArgumentOutOfRangeException with ParamName "pagination" and the actual long offset. No clamp/default is injected. Even empty queries reject invalid offsets; the async helper faults its Task before cancellation for invalid input. Valid-input cancellation is preserved.
+- Add ListCriteriaDto<TFilter,TOrder,TInclude>.CreateDefault() for independent request state. Preserve null/nonpositive pagination, getter/setter reference identity, mutable legacy fields, JSON shape and existing include behavior.
+- Include the approved MIT license for this EF package. No provider, application result, repository or UnitOfWork dependency is added.
+
+The 3.0.0 ordering correction is retained: primary ordering flows through secondary ascending/descending clauses. Null/empty lists pass through and null mappings are ignored. Callers supply their own unique tie-break column.
+
+## Criteria and cancellation
+
+Create a new criteria instance per request with CreateDefault(). It returns the legacy initial state: PaginationInfo, ListOrderOptions and ListRelatedObjects are null. Assign pagination explicitly when bounded results are required:
+
+~~~csharp
+var criteria = ListCriteriaDto<ItemFilter, ItemOrder, ItemRelated>.CreateDefault();
+criteria.PaginationInfo = new RequestPaginationInfo { PageIndex = 1, PageSize = 25 };
+
+var result = await rows.OnSelectListWithPaginationAsync(
+    criteria.PaginationInfo, criteria.ListRelatedObjectsEnum, helper, cancellationToken);
+~~~
+
+ItemFilter, ItemOrder, ItemRelated and helper are caller-defined types/implementations. The overload without the final token remains available.
+
+Null or any nonpositive page index/size remains unbounded. Empty results have zero pages; nonempty unbounded results have one page. The legacy Default and StaticValueDto.PageSize remain public mutable fields for compiled consumers; do not share Default between requests. PageSize does not set criteria pagination automatically. GetCriteriaDto<TInclude>.Default remains a property returning a fresh instance.
+
 
 ## Ordering usage
 
@@ -55,19 +75,8 @@ public static class ItemQueries
 }
 ~~~
 
-The package depends only on EF Core. Database providers remain application choices; no repository, UnitOfWork or application result dependency is introduced. DoSearchCriteria, IncludeRange, Pagination and the existing OnSelectListWithPaginationAsync source signatures remain available. Null/nonpositive pagination retains the legacy unbounded meaning; current default fields/setter behavior is unchanged.
+The public package ID, namespaces, object-selector ordering API and existing signatures remain. Compatibility is qualified for net10 callers; the 3.0 framework migration was a major change and does not support older target-framework binaries.
 
-Source: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), a private repository requiring access. Source provenance, tested scope and release qualification are documented there. No historical 2.2.4 binary equivalence is claimed.
+## License and source
 
-## Local P03 preview — 3.1.0-preview.2
-
-This working-tree preview is not published. Published 3.0.0 remains the stable install above. P02 added a required final CancellationToken argument to OnSelectListWithPaginationAsync; existing three-argument calls remain available and forward CancellationToken.None.
-
-~~~csharp
-var page = await rows.OnSelectListWithPaginationAsync(
-    pagination, relatedObjects, helper, cancellationToken);
-~~~
-
-Count and materialization remain sequential on the same query/context. The token is passed to both EF operations. Framework/dependency requirements remain .NET 10 and EF Core [10.0.12,11.0.0); qualification uses 10.0.12. P03 counts filtered rows with LongCountAsync and calculates page totals with integer quotient/remainder arithmetic. Null/any nonpositive pagination remains unbounded; empty results have zero pages and nonempty unbounded results one page. Default/static-field changes remain outside this task.
-
-For positive pagination, offsets through Int32.MaxValue are accepted. Larger offsets throw ArgumentOutOfRangeException with ParamName "pagination" and the actual long offset; they are not clamped. Validation occurs while composing the page, before any count or materialization SQL, including empty queries. For the async helper this is a faulted Task; an invalid offset takes precedence over cancellation. Valid pagination keeps the P02 cancellation behavior. This intentional input-validation change is local to the unpublished preview; it is not behavior promised by released 3.0.0.
+This EF package is licensed under [MIT](LICENSE), copyright (c) 2026 Mahmoud Akeel. The license does not cover the other utility projects in the repository. Source: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), a private repository requiring access. No equivalence to the historical NuGet 2.2.4 binary is claimed.

@@ -1,10 +1,10 @@
 # EF extensions upgrade plan
 
-Updated: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. P01 is published as 3.0.0 and P02 was accepted after clear Astra high review and delivered at 07560c2014f2e956f6c0a83a616bb8926d93d45b. **P03 pagination implementation and independent review are complete; the user authorized its source delivery as part of completing the package**, on local branch codex/ef-extensions-p03-pagination. The user authorized completing P04, committing/pushing the package sources and publishing the stable update. P04 will preserve legacy behavior and add a fresh-instance factory; MIT is approved for the EF package only. Application work remains separate. Historical release/test receipts remain unchanged.
+Updated: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. P01 is published as 3.0.0; accepted P02 and reviewed P03 were delivered at 07560c2 and 9ab540e. The user authorized completing P04, committing/pushing reviewed package source, then publishing stable 3.1.0. **Current status: P04 and the 3.1.0 candidate are implemented locally, awaiting independent review and final source/artifact delivery.** MIT is approved for the EF package only. Application adoption remains separate; historical receipts are preserved.
 
 ## Baseline, provenance and goals
 
-Repository: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), verified **private**. Original source import commit: f0e7ed38199a6de8ac3b404bbafe00e7cace9a41 on main. P00 preserved original source plus exclusions for build/user/credential artifacts. Current local branch: codex/ef-extensions-p03-pagination, based on 07560c2014f2e956f6c0a83a616bb8926d93d45b. Original source, reviewed 3.0.0 and accepted P02 were delivered before P03. P03 source delivery is now authorized on codex/ef-extensions-p03-pagination before the P04 branch is created.
+Repository: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), verified **private**. Original source import commit: f0e7ed38199a6de8ac3b404bbafe00e7cace9a41 on main. P00 preserved original source plus exclusions for build/user/credential artifacts. Current local branch: codex/ef-extensions-p04-stable-3-1, based on delivered P03 commit 9ab540e692b6c7ebf430be966b5e226c20181328. P04/release changes remain unstaged and uncommitted. Parent workflow will commit/push reviewed source before final packing/publication.
 
 The imported EF project declares net5.0, EF Core 5.0.1 and package version 2.2.4. That version string does **not** prove equivalence to the NuGet 2.2.4 binary previously consumed by the application. Preserve the source import and distinguish imported-source failures, historical package observations and newly built preview evidence.
 
@@ -36,11 +36,11 @@ Before P01 ordering changes, the unchanged imported ordering source was tested a
 | P00 | Preserve/import original source into private GitHub | User publication authorization | Done; original import only |
 | P01 | EF 10 ordering foundation, focused tests, explicit local package and documentation | P00; user acceptance recorded | Accepted by user after clear Astra high review, 17 October 2026 |
 | P02 | Add cancellation without removing existing async signature | Accepted P01 and explicit next-task approval | Accepted after clear Astra high review; delivered at 07560c2, 18 October 2026 |
-| P03 | Overflow-safe pagination and long counts preserving unbounded semantics | Accepted P02 and explicit approval | Reviewed clear and approved for source delivery under the package-completion instruction, 18 October 2026 |
-| P04 | Decide default setter/static-field compatibility, then implement only chosen behavior | Accepted prior tasks and explicit decision/approval | Not started |
-| P05 | Stable 3.0.0 qualification/publication of accepted P01; application adoption separate | Accepted P01 and explicit NuGet publication authorization | Published accepted P01 as 3.0.0; stable review clear and fresh public restore/runtime verified; adoption unstarted |
+| P03 | Overflow-safe pagination and long counts preserving unbounded semantics | Accepted P02 and explicit approval | Reviewed clear and delivered at 9ab540e under the package-completion instruction, 18 October 2026 |
+| P04 | Preserve legacy state/fields; add fresh criteria factory and acknowledge hiding | User-approved safe compatibility option | Implemented; independent review pending |
+| P05 | Stable package qualification/publication; application adoption separate | User package-completion/publication authorization | 3.0.0 published; 3.1.0 candidate qualified locally, review/source delivery/final publication pending; adoption unstarted |
 
-For each task: record the approved boundary → Sol implementation and focused checks → Astra review of a stable diff/evidence → fixes/re-review → present the concrete result → stop for the user's next decision. Approval of implementation does not authorize source commit/push or application adoption. The explicit NuGet authorization applied to stable 3.0.0, now published; the P01/P02 previews were not published and the current P03 preview is not authorized for publication.
+Within the current package-completion authorization: Sol implements and qualifies a stable diff, Astra reviews, findings are fixed/reviewed, then the parent commits/pushes reviewed source before packing the final artifact from that clean revision and publishing NuGet. This supersedes the earlier per-task stop gate for remaining package work. It does not authorize application adoption. Historical previews were not published.
 
 ### P01 — Modern EF ordering foundation
 
@@ -74,7 +74,7 @@ Evidence: [P02 verification](../development/P02_VERIFICATION.md) records 45 pass
 - [x] Verify legacy/None/live-token results, pre-cancellation and real active count/materialization cancellation with cleanup and context recovery.
 - [x] Preserve compiled old caller and stable artifacts; qualify the isolated local 3.1.0-preview.1 package.
 - [x] Astra high independently reviewed P02 on 18 October 2026: "No actionable findings remain for P02."
-- [x] User accepted P02 and authorized its source commit/push and P03 implementation. No additional NuGet publication or P03 commit/push is authorized.
+- [x] User accepted P02 and authorized its source commit/push and P03 implementation. At P02 acceptance, no additional publication or P03 commit/push was authorized; the later package-completion instruction supersedes that gate.
 
 ### P03 — Prevent offset/count overflow
 
@@ -92,15 +92,17 @@ Evidence: [P03 verification](../development/P03_VERIFICATION.md) records real-pr
 - [x] Astra high independently reviewed P03 on 18 October 2026: "No actionable findings remain for P03."
 - [x] User authorized P03 source delivery and completing P04/stable publication under the latest package-completion instruction.
 
-### P04 — Decide defaults and shared mutable fields
+### P04 — Preserve compatibility and add fresh request state
 
-Purpose: improve usability without accidentally changing observable source or binary contracts.
+Chosen option, explicitly authorized: preserve effective legacy behavior. PaginationInfo is a same-type/name getter/setter auto-property storing the supplied reference, including null/zero/negative values. Remove only the ineffective default allocation/private backing fields. Null/nonpositive pagination remains unbounded; no hidden 25-row default is introduced.
 
-Before implementation, present choices for the overwritten pagination setter and shared mutable fields. Effective null pagination currently stays null/unbounded. Decide whether to preserve that behavior with clearer code, or intentionally introduce bounded defaults with documented caller migration. Separately decide whether to retain fields and add a fresh-instance factory, or accept a field-to-property binary break. Assess StaticValueDto.PageSize separately; do not pretend it controls ListCriteriaDto's current private size field.
+Keep ListCriteriaDto.Default and StaticValueDto.PageSize as public mutable static fields with their existing types/assignability. Add CreateDefault() returning a new legacy-state instance, independent of the shared field. It starts with null pagination/order/include lists; callers set bounded pagination explicitly. GetCriteriaDto.Default stays a fresh-instance property. Shared-field mutation remains a compatibility risk, documented with the fresh factory as the recommended request path; it is not presented as a new global pagination setting.
 
-Acceptance follows the explicit decision: independent default instances where selected, documented null/zero behavior, old compiled/source consumers where compatibility is promised and migration notes for any deliberate break. No change is authorized by this plan alone. Follow [library breaking-change guidance](https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/breaking-changes).
+Add new to the existing derived instance AddNewInclude declaration, acknowledging current hiding without changing its signature/behavior. No Obsolete warning, field-to-property change, enum policy or other project change is introduced.
 
-### P05 — Qualify and publish accepted P01; adoption remains separate
+Acceptance: setter reference identity/null/nonpositive behavior and JSON shape; factory independence from each other/shared Default; field type/read/write/binary compatibility with finally restoration; derived/base include behavior. [P04 verification](../development/P04_VERIFICATION.md) records nine new tests plus all 68 prior cases, zero-warning build and unchanged compiled consumers. Independent review remains pending.
+
+### P05 — Historical 3.0.0 qualification and current 3.1.0 follow-up
 
 Purpose: qualify and publish accepted P01 as stable 3.0.0 under the user's explicit authorization. P02–P04 are optional future increments, not prerequisites silently added to this release.
 
@@ -108,7 +110,22 @@ Keep production behavior unchanged and prepare 3.0.0 metadata, install/release n
 
 A later application task must explicitly choose the package version/feed, update its lock graph and re-run affected real-provider contracts before removing its local ordering adapter. The current application's historical bug-expectation regression must then be deliberately revised. Do not edit it as part of P01. Authentication/tenancy and FEAT-04.T02 remain outside this package work.
 
-NuGet 3.0.0 publication is complete and verified. Reviewed 3.0.0 source delivery is complete at commit 804b5e1eb8cd3afabe4e34e2a9b91a5a2f5eda80 on the pushed codex/ef10-ordering-foundation branch; later task commits/pushes and application adoption still require separate authorization. Never overwrite historical 2.2.4 or claim a package was published before actual registry confirmation. See [stable release verification](../development/RELEASE_3_0_0_VERIFICATION.md) for actual results and artifact/source manifests.
+NuGet 3.0.0 publication is complete and verified. Reviewed 3.0.0 source delivery is complete at commit 804b5e1eb8cd3afabe4e34e2a9b91a5a2f5eda80 on the pushed codex/ef10-ordering-foundation branch; the latest instruction now authorizes remaining package source delivery/publication; application adoption still requires separate authorization. Never overwrite historical 2.2.4 or claim a package was published before actual registry confirmation. See [stable release verification](../development/RELEASE_3_0_0_VERIFICATION.md) for actual results and artifact/source manifests.
+
+## Remaining finding dispositions and 3.1.0 release
+
+| Finding | Disposition |
+| --- | --- |
+| Ordering chain discards/fails secondary order | Corrected and qualified in P01; retained in 3.1.0 |
+| No async cancellation | Additive overload implemented/accepted in P02; old signature forwards None |
+| Offset/int count/page arithmetic | P03 long count and safe arithmetic; oversized positive offset is an explicit before-SQL error |
+| Pagination setter allocates then overwrites defaults | P04 auto-property preserves the effective supplied-reference/null behavior |
+| Shared mutable static fields | Retained deliberately for binary compatibility; recommend independent CreateDefault per request; callers may still replace legacy fields |
+| Implicit derived include-method hiding | Explicit new acknowledges the existing behavior; CS0108 removed without suppression |
+| EF ToDto projection uncertainty | Actual packed-provider bounded/empty/unbounded paths passed; no speculative projection framework/fix added |
+| Package metadata/licensing | Stable 3.1.0, approved EF-only MIT expression and full LICENSE; no other-project/source-publication grant |
+
+The 3.1.0 candidate includes P02–P04, the prior ordering correction and MIT, with no new production dependency. [Release verification](../development/RELEASE_3_1_0_VERIFICATION.md) records actual provider/caller/package checks. Candidate output is artifacts/release31; final output will be separate artifacts/release31-final after review and source commit/push. Final packing must pass the actual clean source SHA via RepositoryCommit, verify the same DLL, inspect new nuspec/license and restore from a fresh cache/lock. No source/symbol package or SourceLink is added. Publication is authorized but remains pending actual registry verification. Application adoption/FEAT-04.T02 remains unstarted.
 
 ## Scoped command entry points
 
@@ -117,8 +134,8 @@ With .NET SDK 10.0.401 selected, run only the EF/test projects; the legacy solut
 ~~~text
 dotnet restore tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --locked-mode
 dotnet build tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --configuration Release --no-restore
-dotnet test tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --configuration Release --no-build --no-restore --filter "FullyQualifiedName~OrderingLinqTests|FullyQualifiedName~PublicApiCompatibilityTests"
-dotnet pack Akeel.Utilities.EF.Extensions/Akeel.Utilities.EF.Extensions.csproj --configuration Release --no-build --no-restore --output artifacts/p03
+dotnet test tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --configuration Release --no-build --no-restore --filter "FullyQualifiedName~OrderingLinqTests|FullyQualifiedName~PublicApiCompatibilityTests|FullyQualifiedName~CriteriaCompatibilityTests"
+dotnet pack Akeel.Utilities.EF.Extensions/Akeel.Utilities.EF.Extensions.csproj --configuration Release --no-build --no-restore --output artifacts/release31
 ~~~
 
 Full provider-test Compose/credential instructions and actual local-package probe results belong to [P01 verification](../development/P01_VERIFICATION.md). No operational PowerShell script or app-private state dependency is introduced.
