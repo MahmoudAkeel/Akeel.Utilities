@@ -20,8 +20,12 @@ namespace Akeel.Utilities.EF.Extensions.ExtensionMethods
             if (pagination.PageIndex == -1 && pagination.PageSize == -1)
                 return source;
 
-            return source
-                  .Skip(pagination.PageSize * (pagination.PageIndex - 1)).Take(pagination.PageSize);
+            var offset = checked((long)pagination.PageSize * (pagination.PageIndex - 1L));
+            if (offset > int.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(pagination), offset,
+                    "The page offset must not exceed Int32.MaxValue.");
+
+            return source.Skip((int)offset).Take(pagination.PageSize);
 
         }
 
@@ -53,7 +57,9 @@ namespace Akeel.Utilities.EF.Extensions.ExtensionMethods
             ISelectListWithPagination<TEntity, TDto, TIncludeRelatedObjectsEnum> selectListWithPagination,
             CancellationToken cancellationToken)
         {
-            var rowsCount = await rows.CountAsync(cancellationToken);
+            paginationInfo = VerifyPagination(paginationInfo);
+            var pagedRows = rows.Pagination(paginationInfo);
+            var rowsCount = await rows.LongCountAsync(cancellationToken);
             if (rowsCount == 0)
             {
                 return new RowsWithPaginationInfo<TDto>()
@@ -68,12 +74,9 @@ namespace Akeel.Utilities.EF.Extensions.ExtensionMethods
                 };
             }
 
-            paginationInfo = VerifyPagination(paginationInfo);
-
             var currentListRelatedObjects = listRelatedObjectsEnums ??
                                             new List<TIncludeRelatedObjectsEnum>();
-            var result = await rows
-                .Pagination(paginationInfo)
+            var result = await pagedRows
                 .Select(selector: x => selectListWithPagination.ToDto(x, currentListRelatedObjects))
                 .ToListAsync(cancellationToken);
             return new RowsWithPaginationInfo<TDto>()
@@ -101,11 +104,15 @@ namespace Akeel.Utilities.EF.Extensions.ExtensionMethods
 
         }
 
-        private static ResponsePaginationInfo ToPaginationInfo(int rowsCount, int pageSize)
+        private static ResponsePaginationInfo ToPaginationInfo(long rowsCount, int pageSize)
         {
+            long totalPages = 0;
+            if (rowsCount > 0)
+                totalPages = pageSize <= 0 ? 1 : rowsCount / pageSize + (rowsCount % pageSize == 0 ? 0 : 1);
+
             return new ResponsePaginationInfo()
             {
-                TotalPagesCount = pageSize <=0  ? 1 : (int)Math.Ceiling(rowsCount / (decimal)pageSize),
+                TotalPagesCount = totalPages,
                 TotalRowsCount = rowsCount
             };
         }

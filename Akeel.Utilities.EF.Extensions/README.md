@@ -59,13 +59,15 @@ The package depends only on EF Core. Database providers remain application choic
 
 Source: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), a private repository requiring access. Source provenance, tested scope and release qualification are documented there. No historical 2.2.4 binary equivalence is claimed.
 
-## Local P02 preview — 3.1.0-preview.1
+## Local P03 preview — 3.1.0-preview.2
 
-This working-tree preview is not published. Published 3.0.0 remains the stable install above. The preview adds a required final CancellationToken argument to OnSelectListWithPaginationAsync; existing three-argument calls remain available and forward CancellationToken.None.
+This working-tree preview is not published. Published 3.0.0 remains the stable install above. P02 added a required final CancellationToken argument to OnSelectListWithPaginationAsync; existing three-argument calls remain available and forward CancellationToken.None.
 
 ~~~csharp
 var page = await rows.OnSelectListWithPaginationAsync(
     pagination, relatedObjects, helper, cancellationToken);
 ~~~
 
-Count and materialization remain sequential on the same query/context. The token is passed to both EF operations. Framework/dependency requirements remain .NET 10 and EF Core [10.0.12,11.0.0); qualification uses 10.0.12. Offset overflow, long-count and default/static-field changes are outside P02.
+Count and materialization remain sequential on the same query/context. The token is passed to both EF operations. Framework/dependency requirements remain .NET 10 and EF Core [10.0.12,11.0.0); qualification uses 10.0.12. P03 counts filtered rows with LongCountAsync and calculates page totals with integer quotient/remainder arithmetic. Null/any nonpositive pagination remains unbounded; empty results have zero pages and nonempty unbounded results one page. Default/static-field changes remain outside this task.
+
+For positive pagination, offsets through Int32.MaxValue are accepted. Larger offsets throw ArgumentOutOfRangeException with ParamName "pagination" and the actual long offset; they are not clamped. Validation occurs while composing the page, before any count or materialization SQL, including empty queries. For the async helper this is a faulted Task; an invalid offset takes precedence over cancellation. Valid pagination keeps the P02 cancellation behavior. This intentional input-validation change is local to the unpublished preview; it is not behavior promised by released 3.0.0.

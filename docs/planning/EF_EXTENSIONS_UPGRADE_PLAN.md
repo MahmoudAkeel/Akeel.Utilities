@@ -1,10 +1,10 @@
 # EF extensions upgrade plan
 
-Updated: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. P01 was accepted and published as 3.0.0 after clear Astra high review; source delivery is complete at 804b5e1eb8cd3afabe4e34e2a9b91a5a2f5eda80. **P02 cancellation implementation and independent review are complete and accepted by the user**, on local branch codex/ef-extensions-p02-cancellation. The user authorized P02 source commit/push and P03 implementation; P03 commit/push, any new NuGet publication, P04 and application adoption remain gated. Historical 17 October release evidence remains unchanged.
+Updated: 18 October 2026. Workflow: wf-astra-high-sol6.1-high. P01 is published as 3.0.0 and P02 was accepted after clear Astra high review and delivered at 07560c2014f2e956f6c0a83a616bb8926d93d45b. **P03 pagination implementation and independent review are complete; the user authorized its source delivery as part of completing the package**, on local branch codex/ef-extensions-p03-pagination. The user authorized completing P04, committing/pushing the package sources and publishing the stable update. P04 will preserve legacy behavior and add a fresh-instance factory; MIT is approved for the EF package only. Application work remains separate. Historical release/test receipts remain unchanged.
 
 ## Baseline, provenance and goals
 
-Repository: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), verified **private**. Original source import commit: f0e7ed38199a6de8ac3b404bbafe00e7cace9a41 on main. P00 preserved original source plus exclusions for build/user/credential artifacts. Current local branch: codex/ef-extensions-p02-cancellation, based on 804b5e1eb8cd3afabe4e34e2a9b91a5a2f5eda80. The source backup and reviewed 3.0.0 source were pushed before P02; P02 source delivery is authorized on codex/ef-extensions-p02-cancellation; the source history records the delivery commit.
+Repository: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), verified **private**. Original source import commit: f0e7ed38199a6de8ac3b404bbafe00e7cace9a41 on main. P00 preserved original source plus exclusions for build/user/credential artifacts. Current local branch: codex/ef-extensions-p03-pagination, based on 07560c2014f2e956f6c0a83a616bb8926d93d45b. Original source, reviewed 3.0.0 and accepted P02 were delivered before P03. P03 source delivery is now authorized on codex/ef-extensions-p03-pagination before the P04 branch is created.
 
 The imported EF project declares net5.0, EF Core 5.0.1 and package version 2.2.4. That version string does **not** prove equivalence to the NuGet 2.2.4 binary previously consumed by the application. Preserve the source import and distinguish imported-source failures, historical package observations and newly built preview evidence.
 
@@ -12,13 +12,13 @@ Goals: make ordering correct and directly usable on EF 10; retain established pu
 
 Non-goals: retarget the other seven projects, rebuild/publish historical 2.2.4, add SQL Server/Npgsql/ValidateResult production dependencies, introduce a repository framework, change application result contracts, copy app tenant contracts or adopt the preview into FEAT-04. Source Multitenant and the application repository remain untouched. No license grant, SourceLink/source publication or release approval is invented.
 
-## Inspected source findings
+## Imported source findings
 
 | Source | Finding and implication | Task |
 | --- | --- | --- |
 | ExtensionMethods/QuerableOrderExtension.cs | Each secondary clause starts from the original query; descending secondary uses OrderByDescending. The chain can throw for ThenBy or discard primary ordering. | P01 |
 | Models/OrderColumn.cs | Public Expression<Func<TEntity, object>> selector and direction inference from enum name are existing caller contracts. Keep these APIs and qualify actual EF translation rather than replacing them. | P01 |
-| ExtensionMethods/QueryableExtensions.cs | Existing async count/materialization do not accept a CancellationToken; CountAsync and ToListAsync are sequential today. | P02 |
+| ExtensionMethods/QueryableExtensions.cs | Existing async count/materialization do not accept a CancellationToken; CountAsync and ToListAsync were sequential. | P02 |
 | Same file | Page offset multiplies int values without overflow checks; CountAsync returns int even though response totals are long. | P03 |
 | Same file | Null or any nonpositive page/index means unbounded rows; empty result has 0 pages, nonempty unbounded result has 1. These are existing semantics to preserve. | P02/P03 |
 | Models/ListCriteria.cs | Setter creates a 25-row default and then overwrites it with the original value. A silent fix would change effective null/unbounded behavior to 25 rows. | P04 decision |
@@ -35,12 +35,12 @@ Before P01 ordering changes, the unchanged imported ordering source was tested a
 | --- | --- | --- | --- |
 | P00 | Preserve/import original source into private GitHub | User publication authorization | Done; original import only |
 | P01 | EF 10 ordering foundation, focused tests, explicit local package and documentation | P00; user acceptance recorded | Accepted by user after clear Astra high review, 17 October 2026 |
-| P02 | Add cancellation without removing existing async signature | Accepted P01 and explicit next-task approval | Accepted by the user after clear Astra high review; source commit/push authorized, 18 October 2026 |
-| P03 | Overflow-safe pagination and long counts preserving unbounded semantics | Accepted P02 and explicit approval | Not started |
+| P02 | Add cancellation without removing existing async signature | Accepted P01 and explicit next-task approval | Accepted after clear Astra high review; delivered at 07560c2, 18 October 2026 |
+| P03 | Overflow-safe pagination and long counts preserving unbounded semantics | Accepted P02 and explicit approval | Reviewed clear and approved for source delivery under the package-completion instruction, 18 October 2026 |
 | P04 | Decide default setter/static-field compatibility, then implement only chosen behavior | Accepted prior tasks and explicit decision/approval | Not started |
 | P05 | Stable 3.0.0 qualification/publication of accepted P01; application adoption separate | Accepted P01 and explicit NuGet publication authorization | Published accepted P01 as 3.0.0; stable review clear and fresh public restore/runtime verified; adoption unstarted |
 
-For each task: record the approved boundary → Sol implementation and focused checks → Astra review of a stable diff/evidence → fixes/re-review → present the concrete result → stop for the user's next decision. Approval of implementation does not authorize source commit/push or application adoption. The explicit NuGet authorization applied to stable 3.0.0, now published; neither the historical P01 preview nor the current P02 preview is authorized for publication.
+For each task: record the approved boundary → Sol implementation and focused checks → Astra review of a stable diff/evidence → fixes/re-review → present the concrete result → stop for the user's next decision. Approval of implementation does not authorize source commit/push or application adoption. The explicit NuGet authorization applied to stable 3.0.0, now published; the P01/P02 previews were not published and the current P03 preview is not authorized for publication.
 
 ### P01 — Modern EF ordering foundation
 
@@ -80,11 +80,17 @@ Evidence: [P02 verification](../development/P02_VERIFICATION.md) records 45 pass
 
 Purpose: avoid wrapped offsets and incorrect large totals while preserving the current pagination meaning.
 
-Compute a positive bounded page's offset using checked wider arithmetic before calling Skip. Explicitly reject offsets outside Skip's supported int range; define the exception contract in task approval. Use LongCountAsync with the P02 token. Compute total pages using overflow-safe long quotient/remainder arithmetic. Preserve null/nonpositive pagination as unbounded, 0 pages for empty data and 1 page for nonempty unbounded data.
+Compute a positive bounded page's offset using checked wider arithmetic before calling Skip. Reject larger offsets with ArgumentOutOfRangeException(nameof(pagination)), retaining the actual long offset; no clamp. Compose the page before any SQL, including an empty query. The async helper faults its Task for this invalid input before observing cancellation; valid input retains P02 cancellation. Use LongCountAsync with the P02 token. Compute total pages using overflow-safe long quotient/remainder arithmetic. Preserve null/nonpositive pagination as unbounded, 0 pages for empty data and 1 page for nonempty unbounded data.
 
 Acceptance: first/middle/partial-last/beyond-last/empty pages, null/zero/negative unbounded cases, int offset boundary/overflow and long page-total arithmetic. Prove filtered rows are counted before paging and count/materialization remain sequential. Do not add a hidden default size or silently clamp oversized input.
 
-Evidence: focused arithmetic boundary checks plus real-provider representative pagination/count results. A small dataset does not claim a billion-row integration test.
+Evidence: [P03 verification](../development/P03_VERIFICATION.md) records real-provider pagination/count/cancellation, long arithmetic boundaries, unchanged compiled callers and an isolated local-package consumer. Synthetic private-helper reflection tests cover counts beyond int.MaxValue/near long.MaxValue; they do not claim a billion-row database.
+
+- [x] Validate wider offsets before SQL and preserve null/nonpositive unbounded behavior.
+- [x] Use LongCountAsync and overflow-safe long page totals without changing public DTO/API signatures.
+- [x] Pass all prior and focused tests, frozen-caller checks and actual preview-package consumer checks; preserve owned resources.
+- [x] Astra high independently reviewed P03 on 18 October 2026: "No actionable findings remain for P03."
+- [x] User authorized P03 source delivery and completing P04/stable publication under the latest package-completion instruction.
 
 ### P04 — Decide defaults and shared mutable fields
 
@@ -112,9 +118,11 @@ With .NET SDK 10.0.401 selected, run only the EF/test projects; the legacy solut
 dotnet restore tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --locked-mode
 dotnet build tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --configuration Release --no-restore
 dotnet test tests/Akeel.Utilities.EF.Extensions.Tests/Akeel.Utilities.EF.Extensions.Tests.csproj --configuration Release --no-build --no-restore --filter "FullyQualifiedName~OrderingLinqTests|FullyQualifiedName~PublicApiCompatibilityTests"
-dotnet pack Akeel.Utilities.EF.Extensions/Akeel.Utilities.EF.Extensions.csproj --configuration Release --no-build --no-restore --output artifacts/p02
+dotnet pack Akeel.Utilities.EF.Extensions/Akeel.Utilities.EF.Extensions.csproj --configuration Release --no-build --no-restore --output artifacts/p03
 ~~~
 
 Full provider-test Compose/credential instructions and actual local-package probe results belong to [P01 verification](../development/P01_VERIFICATION.md). No operational PowerShell script or app-private state dependency is introduced.
 
 P02 full-provider and package/binary checks are recorded in [P02 verification](../development/P02_VERIFICATION.md). Its preview output is separate from the preserved stable 3.0.0 artifacts.
+
+P03 current evidence and separate preview output are recorded in [P03 verification](../development/P03_VERIFICATION.md). P02 delivery is complete; its historical verification receipts remain unchanged.
