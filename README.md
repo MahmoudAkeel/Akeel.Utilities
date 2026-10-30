@@ -1,20 +1,18 @@
 # Akeel.Utilities
 
-Original source was imported into this private repository at f0e7ed38199a6de8ac3b404bbafe00e7cace9a41. Only Akeel.Utilities.EF.Extensions is being modernized; the other utility projects are preserved.
+Small .NET utility libraries published as six independent NuGet packages. Pick the package that matches your use case; each has its own version and target framework. EF extensions is the actively maintained library here; the other five are documented as legacy packages without a promised update schedule. The [package version catalog](docs/package-versions.md) records every published version and what historical source can be verified.
 
-Version 3.0.0 is published on NuGet.org after clear independent Astra review. Its source was delivered at 804b5e1eb8cd3afabe4e34e2a9b91a5a2f5eda80. Accepted P02 cancellation was delivered at 07560c2014f2e956f6c0a83a616bb8926d93d45b; reviewed P03 pagination was delivered at 9ab540e692b6c7ebf430be966b5e226c20181328.
+| Package | Use it for | Current published version | Target framework | Usage |
+| --- | --- | --- | --- | --- |
+| [Akeel.Utilities.EF.Extensions](https://www.nuget.org/packages/Akeel.Utilities.EF.Extensions/3.1.0) | Entity Framework Core criteria, ordering, includes and pagination | 3.1.0 | .NET 10; EF Core 10 | [README](Akeel.Utilities.EF.Extensions/README.md) |
+| [Akeel.Utilities.Frontend.CriteriaDesign](https://www.nuget.org/packages/Akeel.Utilities.Frontend.CriteriaDesign/1.0.2) | Request criteria and pagination DTOs | 1.0.2 | .NET 5 | [README](Akeel.Utilities.Frontend.CriteriaDesign/README.md) |
+| [Akeel.Utilities.ValidateResult](https://www.nuget.org/packages/Akeel.Utilities.ValidateResult/1.0.3) | Success or failure values with an error code and message | 1.0.3 | .NET Standard 2.0 | [README](Akeel.Utilities.ValidateResult/README.md) |
+| [Akeel.Utilities.ExtensionMethods](https://www.nuget.org/packages/Akeel.Utilities.ExtensionMethods/1.0.1) | Small string, collection, date and other extensions | 1.0.1 | .NET Standard 2.0 | [README](Akeel.Utilities.ExtensionMethods/README.md) |
+| [QueryStringBuilder.Net](https://www.nuget.org/packages/QueryStringBuilder.Net/1.0.0) | Build a query string from key/value pairs or nested objects | 1.0.0 | .NET Standard 2.0 | [README](QueryStringBuilder.Net/README.md) |
+| [FluentQueryStringBuilder.Net](https://www.nuget.org/packages/FluentQueryStringBuilder.Net/1.0.0) | Build a query string with a fluent API in its own namespace | 1.0.0 | .NET Standard 2.0 | [README](FluentQueryStringBuilder.Net/README.md) |
 
-The user authorized completing P04 and stable 3.1.0, committing/pushing reviewed package source before publishing NuGet. P04 preserves legacy null/unbounded criteria state and mutable fields, adds CreateDefault for fresh request state, and explicitly acknowledges existing method hiding. Independent Astra source and final-artifact reviews are clear as of 18 October 2026. Release code was committed/pushed as 813822b72b4a296ab76a3bc299a83eea7dfbabe5 on codex/ef-extensions-p04-stable-3-1; the final package and fresh-cache runtime smoke passed. Version [3.1.0 is published on NuGet.org](https://www.nuget.org/packages/Akeel.Utilities.EF.Extensions/3.1.0), verified on 18 October 2026 through fresh public-only audited/locked restore, build, runtime smoke and repository-signature verification. P01–P05 package work is complete. The signed public payload matches the reviewed candidate and omits RepositoryCommit; the separately qualified metadata-final archive was not uploaded. This metadata-only limitation has clear independent Astra disposition and does not change the reviewed runtime. Application/FEAT-04 adoption remains separate.
+Install one package with `dotnet add package <package-id> --version <version>`. The package READMEs have exact commands and examples. The query string packages have different public `Add` signatures in their published 1.0.0 archives; check their individual guides. The frontend DTOs and EF extensions also have distinct types; the frontend package is not a dependency of the current EF package.
 
-- [Upgrade plan, finding dispositions and status](docs/planning/EF_EXTENSIONS_UPGRADE_PLAN.md)
-- [EF package usage and 3.1.0 release notes](Akeel.Utilities.EF.Extensions/README.md)
-- [Historical P01 verification](docs/development/P01_VERIFICATION.md)
-- [Published 3.0.0 qualification](docs/development/RELEASE_3_0_0_VERIFICATION.md)
-- [P02 cancellation verification](docs/development/P02_VERIFICATION.md)
-- [P03 pagination verification](docs/development/P03_VERIFICATION.md)
-- [P04 compatibility verification](docs/development/P04_VERIFICATION.md)
-- [3.1.0 candidate history, final artifact and publication status](docs/development/RELEASE_3_1_0_VERIFICATION.md)
+This repository's source is [MIT licensed](LICENSE). Published NuGet archives and their historical metadata are unchanged by this source license. See the [version catalog](docs/package-versions.md) for the limits of historical source correspondence.
 
-## License scope
-
-The user approved MIT for the Akeel.Utilities.EF.Extensions project/package only; see its [LICENSE](Akeel.Utilities.EF.Extensions/LICENSE). No repository-wide license is granted for the other projects, and historical package files/metadata were not altered. The GitHub repository remains private.
+Maintainers: [documentation and release metadata](docs/maintaining-packages.md). Historical EF upgrade and qualification records remain under [docs/development](docs/development) and [docs/planning](docs/planning).

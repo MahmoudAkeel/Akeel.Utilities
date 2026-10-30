@@ -1,45 +1,16 @@
 # Akeel.Utilities.EF.Extensions
 
-Provider-neutral query criteria, includes, ordering and pagination helpers for Entity Framework Core.
+Provider-neutral query criteria, includes, ordering and pagination helpers for Entity Framework Core. Version 3.1.0 targets .NET 10 and declares one dependency: `Microsoft.EntityFrameworkCore [10.0.12,11.0.0)`. Applications on older frameworks need an explicit migration.
 
-**Version 3.1.0 requires .NET 10.** Production depends only on EF Core [10.0.12,11.0.0). Qualification uses EF Core 10.0.12 and PostgreSQL with Npgsql EF/driver 10.0.3; it does not claim every allowed patch/provider was tested. Applications on older frameworks must migrate explicitly.
-
-~~~text
+```text
 dotnet add package Akeel.Utilities.EF.Extensions --version 3.1.0
-~~~
+```
 
-## Release notes — 3.1.0
+## Ordering and request state
 
-- Add a required final CancellationToken overload to OnSelectListWithPaginationAsync. Existing calls remain available and forward CancellationToken.None. Count/materialization run sequentially on the same query/context.
-- Count original filtered rows with LongCountAsync and compute long page totals with safe integer division/remainder.
-- Validate positive page offsets before SQL: offsets through Int32.MaxValue are supported; larger offsets throw ArgumentOutOfRangeException with ParamName "pagination" and the actual long offset. No clamp/default is injected. Even empty queries reject invalid offsets; the async helper faults its Task before cancellation for invalid input. Valid-input cancellation is preserved.
-- Add ListCriteriaDto<TFilter,TOrder,TInclude>.CreateDefault() for independent request state. Preserve null/nonpositive pagination, getter/setter reference identity, mutable legacy fields, JSON shape and existing include behavior.
-- Include the approved MIT license for this EF package. No provider, application result, repository or UnitOfWork dependency is added.
+This self-contained example orders an in-memory query and creates independent criteria state. The same ordering extension accepts an EF `IQueryable<T>`; check that your provider can translate your column expressions.
 
-The 3.0.0 ordering correction is retained: primary ordering flows through secondary ascending/descending clauses. Null/empty lists pass through and null mappings are ignored. Callers supply their own unique tie-break column.
-
-## Criteria and cancellation
-
-Create a new criteria instance per request with CreateDefault(). It returns the legacy initial state: PaginationInfo, ListOrderOptions and ListRelatedObjects are null. Assign pagination explicitly when bounded results are required:
-
-~~~csharp
-var criteria = ListCriteriaDto<ItemFilter, ItemOrder, ItemRelated>.CreateDefault();
-criteria.PaginationInfo = new RequestPaginationInfo { PageIndex = 1, PageSize = 25 };
-
-var result = await rows.OnSelectListWithPaginationAsync(
-    criteria.PaginationInfo, criteria.ListRelatedObjectsEnum, helper, cancellationToken);
-~~~
-
-ItemFilter, ItemOrder, ItemRelated and helper are caller-defined types/implementations. The overload without the final token remains available.
-
-Null or any nonpositive page index/size remains unbounded. Empty results have zero pages; nonempty unbounded results have one page. The legacy Default and StaticValueDto.PageSize remain public mutable fields for compiled consumers; do not share Default between requests. PageSize does not set criteria pagination automatically. GetCriteriaDto<TInclude>.Default remains a property returning a fresh instance.
-
-
-## Ordering usage
-
-Implement the existing column helper, then pass the supported options to DoOrder:
-
-~~~csharp
+```csharp
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,36 +18,53 @@ using Akeel.Utilities.EF.Extensions.ExtensionMethods;
 using Akeel.Utilities.EF.Extensions.Interfaces;
 using Akeel.Utilities.EF.Extensions.Models;
 
-public enum ItemOrder { AmountAsc, AmountDesc, IdAsc, IdDesc }
+var items = new[]
+{
+    new Item { Id = 1, Amount = 5 },
+    new Item { Id = 3, Amount = 10 },
+    new Item { Id = 2, Amount = 10 }
+};
 
-public sealed class Item
+var criteria = ListCriteriaDto<string, ItemOrder, ItemInclude>.CreateDefault();
+criteria.PaginationInfo = new RequestPaginationInfo { PageIndex = 1, PageSize = 2 };
+
+var ordered = items.AsQueryable().DoOrder(
+    new List<ItemOrder> { ItemOrder.AmountDesc, ItemOrder.IdAsc },
+    new ItemOrderHelper());
+
+Console.WriteLine(string.Join(",", ordered.Select(item => item.Id))); // 2,3,1
+Console.WriteLine(criteria.PaginationInfo.PageSize); // 2
+
+enum ItemOrder { AmountDesc, IdAsc }
+enum ItemInclude { Category }
+
+sealed class Item
 {
     public int Id { get; set; }
     public decimal Amount { get; set; }
 }
 
-public sealed class ItemOrderHelper : IOrderableRange<Item, ItemOrder>
+sealed class ItemOrderHelper : IOrderableRange<Item, ItemOrder>
 {
     public OrderColumn<Item> GetOrderColumn(ItemOrder order) => order switch
     {
-        ItemOrder.AmountAsc or ItemOrder.AmountDesc =>
-            OrderColumn<Item, ItemOrder>.CreateOrder(order, item => item.Amount),
-        ItemOrder.IdAsc or ItemOrder.IdDesc =>
-            OrderColumn<Item, ItemOrder>.CreateOrder(order, item => item.Id),
+        ItemOrder.AmountDesc => OrderColumn<Item, ItemOrder>.CreateOrder(order, item => item.Amount),
+        ItemOrder.IdAsc => OrderColumn<Item, ItemOrder>.CreateOrder(order, item => item.Id),
         _ => throw new ArgumentOutOfRangeException(nameof(order))
     };
 }
+```
 
-public static class ItemQueries
-{
-    public static IQueryable<Item> OrderForPage(IQueryable<Item> rows) =>
-        rows.DoOrder(new List<ItemOrder> { ItemOrder.AmountDesc, ItemOrder.IdAsc },
-            new ItemOrderHelper());
-}
-~~~
+`DoOrder` applies the first mapped column as the primary order and later columns as tie-breakers. Empty/null option lists pass through; null mappings are ignored. Supply a unique tie-break column when stable paging matters.
 
-The public package ID, namespaces, object-selector ordering API and existing signatures remain. Compatibility is qualified for net10 callers; the 3.0 framework migration was a major change and does not support older target-framework binaries.
+## Query APIs and limits
 
-## License and source
+`DoSearchCriteria` delegates filtering to an `ISearchableCriteria` implementation. `IncludeRange` uses an `IIncludableRange` implementation. `Pagination` applies `Skip`/`Take` for positive page index and size. `OnSelectListWithPaginationAsync` counts the filtered rows with `LongCountAsync`, materializes the page, and returns `RowsWithPaginationInfo<TDto>`. Its overload with a final `CancellationToken` passes cancellation to both EF operations; the older overload remains available. The async helper runs count and materialization sequentially on the same query/context.
 
-This EF package is licensed under [MIT](LICENSE), copyright (c) 2026 Mahmoud Akeel. The license does not cover the other utility projects in the repository. Source: [MahmoudAkeel/Akeel.Utilities](https://github.com/MahmoudAkeel/Akeel.Utilities), a private repository requiring access. No equivalence to the historical NuGet 2.2.4 binary is claimed.
+Create a new criteria object per request with `ListCriteriaDto<TFilter,TOrder,TInclude>.CreateDefault()`. Its `PaginationInfo`, `ListOrderOptions` and `ListRelatedObjects` initially are null. Null or nonpositive page index/size is treated as unbounded by the query extensions. An empty result has zero pages; a nonempty unbounded result has one. `StaticValueDto.PageSize` does not set pagination. The legacy `ListCriteriaDto.Default` field is mutable and shared; `GetCriteriaDto<TInclude>.Default` is a fresh-instance property.
+
+For bounded pagination, the computed offset must fit `Int32.MaxValue`; a larger offset throws `ArgumentOutOfRangeException` with parameter name `pagination`, including for an empty query. `OrderColumn.CreateOrder` infers ascending direction from an enum name ending in `Asc`; other names mean descending. These helpers do not supply search logic, EF provider configuration or a unique ordering key.
+
+The package was qualified with EF Core 10.0.12 and PostgreSQL/Npgsql 10.0.3; this does not establish behavior for every allowed EF patch or provider. The frontend criteria package has distinct DTO types and is not a dependency of this version. The public 3.1.0 archive contains the earlier embedded README; this source guide reflects the current repository documentation.
+
+Source: [this directory](../Akeel.Utilities.EF.Extensions). License: [MIT](../LICENSE); the published 3.1.0 archive also carries an MIT expression and license file. See [all published versions and source provenance](../docs/package-versions.md) and the [3.1.0 verification record](../docs/development/RELEASE_3_1_0_VERIFICATION.md).
